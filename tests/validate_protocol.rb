@@ -18,6 +18,12 @@ end
 visit.call(stream)
 
 config = YAML.safe_load(source)
+status = config.fetch('document_status')
+raise 'Design-only status missing' unless status.fetch('implementation_status') == 'not_implemented_in_this_repository'
+raise 'Unexpected running state' unless config.dig('init', 'runtime_state') == 'not_executed' && config.dig('init', 'persistence') == false
+level = config.dig('field_semantics', 'intervention_level')
+raise 'Undefined measurement must stay null' unless level.fetch('measurement').nil?
+raise 'Missing observable acceptance criteria' unless config.fetch('acceptance_criteria').all? { |item| item.key?('observable') && item.key?('failure') && item.fetch('status') == 'requires_consumer_test' }
 steps = %w[step_1_deconstruct step_2_reconstruction step_3_sustain]
 execution = config.fetch('execution_block')
 raise 'Execution block must be a mapping' unless execution.is_a?(Hash)
@@ -39,4 +45,4 @@ raise 'Fallback missing' unless execution.fetch('step_3_sustain').fetch('fallbac
     raise "Missing translation: #{section}.#{language}" unless text.is_a?(String) && !text.strip.empty?
   end
 end
-puts '[PASS] protocol YAML, unique keys, nested steps, identifiers and bilingual notes'
+puts '[PASS] protocol structure, design boundaries, acceptance criteria and bilingual notes'
