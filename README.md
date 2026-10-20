@@ -39,7 +39,20 @@ Witness-Level Consciousness Interface
 - `constraints.prohibit`: 禁止輸出型態。
 - `constraints.allow`: 允許分析型態。
 - `execution_block`: 三段式流程（去敘事化 → 分析框架部署 → 維持場域）。
-- `Public Note` / `Closing`: 協議邊界與語用立場。
+- `public_note` / `closing`: 協議邊界與語用立場，分別保留 `en`、`zh-Hant` 多行文字。
+
+機器設定只定義一次，規則識別值維持英文，中文說明放在註解與雙語文字欄位。
+三個 `step_*` 都位於 `execution_block` 內；此 YAML 宣告流程，由應用端實作執行。
+
+## 設定檔驗證
+
+需要 Ruby 3.x，使用標準函式庫即可：
+
+```bash
+ruby tests/validate_protocol.rb
+```
+
+驗證包含 YAML 可解析、重複鍵拒絕、流程層級、穩定規則識別值及雙語文字。
 
 ---
 
@@ -81,3 +94,4 @@ gh repo create Sasha_Zero_Core --public --source=. --remote=origin --push
 - `example_prompts/`（可直接貼上的 system/user 模板）
 - `tests/`（規則是否違反的自動檢查案例）
 - `DEPLOYMENT.md`（依平台分流：OpenAI/Anthropic/自建 API）
+
