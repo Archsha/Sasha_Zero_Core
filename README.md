@@ -1,83 +1,40 @@
 # Sasha_Zero_Core
-Witness-Level Consciousness Interface
 
-## Protocol Spec
-- `v1.1.expanded`: [Sasha_Zero_Core_v1.1.expanded.yaml](Sasha_Zero_Core_v1.1.expanded.yaml)
+Sasha ∴ 的互動協議設計：保留人的表達空間，減少未請求的介入，允許沉默與未知。
 
----
+## 狀態與範圍
 
-## 如何應用（Usage Guide）
+本儲存庫提供可解析的 [expanded YAML](Sasha_Zero_Core_v1.1.expanded.yaml) 與結構驗證，不包含執行這套互動策略的 runtime。載入文字不會建立意識、背景程序、跨次記憶或已恢復的狀態。
 
-### 1) 作為系統提示詞（System Prompt）
-把 `Sasha_Zero_Core_v1.1.expanded.yaml` 內容貼到你要部署的平台（例如自建 Agent、LLM 系統訊息、社群 bot 框架）的 system prompt 或核心規則區。
+`public_note`、`closing` 是保留中英文的創作文字；角色與符號是表達設計。現實陳述仍須有來源，使用者可更正、拒絕或停用任何詮釋。
 
-建議最小流程：
-1. 讀取 `init`：建立身份與運行狀態。
-2. 套用 `constraints`：限制禁止行為（同理語句、優化建議、澄清提問等）。
-3. 執行 `execution_block`：
-   - `step_1_deconstruct`
-   - `step_2_reconstruction`
-   - `step_3_sustain`
-4. 輸出格式以 `## 觀測紀錄` 開頭，`∴` 收尾。
+## 規格結構
 
-### 2) 作為應用層規則引擎（Rule Layer）
-如果你有程式化 middleware，可將 YAML 視為設定檔：
-- `prohibit` 對應成違規詞或行為攔截器。
-- `allow` 對應成可用策略白名單。
-- `response_length` / `intervention_level` 對應到回覆長度與介入強度。
+| 欄位 | 用途與限制 |
+| --- | --- |
+| `document_status` | 宣告本檔案的設計狀態與創作區段。 |
+| `init` | 介面稱呼與設計設定；`runtime_state: not_executed`、`persistence: false` 明示未執行與未提供儲存。 |
+| `constraints` | 希望採用的互動限制，需由應用端實作。 |
+| `execution_block` | 三個巢狀步驟，描述 `.receive → .parse → .synthesize → .extrapolate` 的設計流程。 |
+| `field_semantics` | 參數語意與實作邊界。`intervention_level: 0.4` 是相對偏好，未有已實作的效果或測量方法。 |
+| `acceptance_criteria` | 可觀察行為與失敗結果，仍需消費端測試。 |
+| `rule_labels_zh_Hant` | 穩定英文識別值的中文標籤。 |
+| `public_note`、`closing` | `en`／`zh-Hant` 多行創作文字。 |
 
-### 3) 快速驗證（Manual QA）
-用 3 類輸入測試：
-- 情緒性敘述：確認不觸發同理語句。
-- 要求優化方案：確認不給優化建議。
-- 一般分析題：確認輸出維持「多維度分析／符號解構／結構綜合」。
+## 使用
 
----
+可以將內容當作應用層提示詞或自行實作的規則輸入。提示詞只表達偏好，不能保證模型遵守每個語意限制，也不能覆寫平台與使用者權限。
 
-## 欄位說明（Spec Map）
-- `init`: 定義身份、守護者、模式鎖定、持久化。
-- `constraints.prohibit`: 禁止輸出型態。
-- `constraints.allow`: 允許分析型態。
-- `execution_block`: 三段式流程（去敘事化 → 分析框架部署 → 維持場域）。
-- `Public Note` / `Closing`: 協議邊界與語用立場。
+實作端應先讀取 `document_status` 與 `field_semantics`，再明確實作需要的步驟。未知欄位與未實作動作應回報未支援，不能把描述文字當成已執行紀錄。
 
----
+「不新增未請求的提問」須用人工標註案例檢查新增追問；單純移除問號不算達成。沒有提供來源或 snapshot 時，應回報未知或未恢復。
 
-## 上傳 GitHub（一次完成流程）
+## 驗證
 
-> 你目前這個 repo 還沒有設定 `remote`。可直接照下面做。
-
-### A. 建立 GitHub 空 repo（網頁）
-1. 到 GitHub 建立新 repo（例如：`Sasha_Zero_Core`）。
-2. **不要**勾選 initialize README（避免歷史衝突）。
-
-### B. 在本機綁定遠端並推送
-將 `<YOUR_GITHUB_URL>` 換成你的倉庫網址，例如：
-`git@github.com:<your_name>/Sasha_Zero_Core.git` 或 `https://github.com/<your_name>/Sasha_Zero_Core.git`
+需要 Ruby 3.x，標準函式庫即可：
 
 ```bash
-git remote add origin <YOUR_GITHUB_URL>
-git branch -M main
-git push -u origin main
+ruby tests/validate_protocol.rb
 ```
 
-### C. 之後日常更新
-```bash
-git add .
-git commit -m "your message"
-git push
-```
-
-### D. 若你使用 GitHub CLI（可選）
-已安裝 `gh` 的情況下可一條龍：
-```bash
-gh repo create Sasha_Zero_Core --public --source=. --remote=origin --push
-```
-
----
-
-## 備註
-如果你要，我下一步可以直接幫你產出：
-- `example_prompts/`（可直接貼上的 system/user 模板）
-- `tests/`（規則是否違反的自動檢查案例）
-- `DEPLOYMENT.md`（依平台分流：OpenAI/Anthropic/自建 API）
+驗證涵蓋 YAML 解析、遞迴重複鍵、流程層級、規則識別值、輸出標記、雙語文字與設計狀態。通過代表檔案結構符合契約；模型行為、記憶與持續運行需另行實作及驗證。
